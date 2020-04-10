@@ -60,33 +60,38 @@ usersRouter.route("/devsignup").post(jsonBodyParser, (req, res, next) => {
         return res
           .status(400)
           .json({ error: { message: "Organization doesn't exist" } });
+      } else {
+        return organization;
       }
-      return organization;
     })
     .then((organization) => {
-      return UsersService.hashPassword(password) //hashing password
-        .then((hashedPassword) => {
-          const newUser = {
-            first_name,
-            last_name,
-            email,
-            password: hashedPassword,
-            org_id: organization[0].id,
-            role: "dev",
-          };
-          if (organization[0].id == null) {
-            return res.status(400, {
-              error: { message: "organization.id is null" },
-            });
-          }
-          return UsersService.addUser(req.app.get("db"), newUser).then(
-            (user) => {
-              res.status(201).json(UsersService.serializeUser(user));
-            }
-          );
+      if (organization[0] == null) {
+        return res.status(400, {
+          error: { message: "organization.id is null" },
         });
-    })
-    .catch(next);
+      } else {
+        UsersService.hashPassword(password) //hashing password
+          .then((hashedPassword) => {
+            const newUser = {
+              first_name,
+              last_name,
+              email,
+              password: hashedPassword,
+              org_id: organization[0].id,
+              role: "dev",
+            };
+            return newUser;
+          })
+          .then((newUser) => {
+            return UsersService.addUser(req.app.get("db"), newUser).then(
+              (user) => {
+                res.status(201).json(UsersService.serializeUser(user));
+              }
+            );
+          })
+          .catch(next);
+      }
+    });
 });
 
 module.exports = usersRouter;
