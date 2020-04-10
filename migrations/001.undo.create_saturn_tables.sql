@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS organizations, users, projects, stories, comments, stages;
