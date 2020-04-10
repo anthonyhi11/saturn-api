@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const config = require('../config')
 
 const LoginService = {
-  getUserWithUsername(db, email) {
+  getUserWithEmail(db, email) {
     return db
       .select('*')
       .from('users')

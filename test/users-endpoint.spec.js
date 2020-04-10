@@ -12,7 +12,6 @@ const {
 describe("Users Endpoints", () => {
   let db;
   const testOrganizations = makeOrganizationsArray();
-  const testUsers = makeUsersArray();
 
   before("make knex instance", () => {
     db = knex({
@@ -40,7 +39,6 @@ describe("Users Endpoints", () => {
         "email",
         "password",
         "password_confirm",
-        "passcode",
       ];
 
       requiredFields.forEach((field) => {
@@ -62,25 +60,26 @@ describe("Users Endpoints", () => {
             .expect(400);
         });
       });
-      it("responds with 400 if passcode is incorrect or not there", () => {
-        let incorrectPasscodeAttempt = {
-          first_name: "aeadsf",
-          last_name: "asdlfakjdf",
-          email: "asldfkajsdf",
-          password: "Password123!",
-          password_confirm: "Password123!",
-          passcode: "asdflkj",
-        };
-        return supertest(app)
-          .post("/api/users/devsignup")
-          .send(incorrectPasscodeAttempt)
-          .expect(400, {
-            error: {
-              message: "Organization doesn't exist",
-            },
-          });
-      });
+      // it("responds with 400 if passcode is incorrect or not there", () => {
+      //   let incorrectPasscodeAttempt = {
+      //     first_name: "aeadsf",
+      //     last_name: "asdlfakjdf",
+      //     email: "asldfkajsdf",
+      //     password: "Password123!",
+      //     password_confirm: "Password123!",
+      //     passcode: "asdflkj",
+      //   };
+      //   return supertest(app)
+      //     .post("/api/users/devsignup")
+      //     .send(incorrectPasscodeAttempt)
+      //     .expect(400, {
+      //       error: {
+      //         message: "Organization doesn't exist",
+      //       },
+      //     });
+      // });
     });
+
     context("HAPPY PATH POST USER", () => {
       beforeEach("seeds", () => {
         seedOrganizations(db, testOrganizations);
@@ -98,6 +97,22 @@ describe("Users Endpoints", () => {
         return supertest(app)
           .post("/api/users/devsignup")
           .send(successfulUser)
+          .expect(201);
+      });
+    });
+    context("happy path for admin sign up", () => {
+      it("responds with a 201 and serialized user", () => {
+        let goodAdminAttempt = {
+          first_name: "Anthony",
+          last_name: "Hill",
+          email: "admin@gmail.com",
+          password: "AAaa11!!",
+          password_confirm: "AAaa11!!",
+          org_name: "Stardew Crew",
+        };
+        supertest(app)
+          .post("/api/users/adminsignup")
+          .send(goodAdminAttempt)
           .expect(201);
       });
     });

@@ -6,6 +6,7 @@ const helmet = require("helmet");
 const { NODE_ENV } = require("./config");
 const organizationsRouter = require("./organizations/organizations-router");
 const usersRouter = require("./users/users-router");
+const loginRouter = require("./login/login-router");
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use(morgan(morganOption));
 app.use(helmet());
 app.use(cors());
 
+app.use("/api/login", loginRouter);
 app.use("/api/organizations", organizationsRouter);
 app.use("/api/users", usersRouter);
 app.get("/", (req, res) => {
