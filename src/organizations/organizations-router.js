@@ -4,18 +4,23 @@ const OrganizationsService = require("./organizations-service");
 const organizationsRouter = express.Router();
 const jsonBodyParser = express.json();
 
-organizationsRouter.route("/").get(jsonBodyParser, (req, res, next) => {
-  let { passcode } = req.body;
-  if (passcode == null) {
-    return res.status(400).json({
-      error: { message: "Must enter passcode" },
+organizationsRouter
+  .route("/:org_id")
+  .patch(jsonBodyParser, (req, res, next) => {
+    //need to make a decision on how they will update anything.
+    let org_id = req.params.org_id;
+    let { name } = req.body;
+    let newOrgInfo = {
+      name: name,
+      date_modified: 'now()',
+    };
+    OrganizationsService.updateOrganization(
+      req.app.get("db"),
+      org_id,
+      newOrgInfo
+    ).then((updatedOrganization) => {
+      res.status(204).end();
     });
-  }
-  OrganizationsService.getOrganization(req.app.get("db"), passcode).then(
-    (organization) => {
-      res.status(200).json(organization);
-    }
-  );
-});
+  });
 
 module.exports = organizationsRouter;

@@ -55,7 +55,7 @@ usersRouter.route("/devsignup").post(jsonBodyParser, (req, res, next) => {
   });
 
   //verify organization exists
-  OrganizationsService.getOrganization(req.app.get("db"), passcode)
+  OrganizationsService.getOrganizationByPasscode(req.app.get("db"), passcode)
     .then((organization) => {
       console.log("this is the org", organization[0]);
       if (organization[0] == null) {

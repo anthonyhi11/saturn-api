@@ -9,11 +9,18 @@ const OrganizationsService = {
       });
   },
 
-  getOrganization(knex, passcode) {
+  getOrganizationByPasscode(knex, passcode) {
     return knex
       .select("*")
       .from("organizations")
       .where("org_passcode", passcode); //returns the org info when supplied passcode
+  },
+  updateOrganization(knex, id, newInfo) {
+    return knex("organizations")
+      .where({ id })
+      .update(newInfo)
+      .returning("*")
+      .then(([user]) => user);
   },
 };
 
