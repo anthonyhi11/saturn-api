@@ -20,7 +20,7 @@ const OrganizationsService = {
       .where({ id })
       .update(newInfo)
       .returning("*")
-      .then(([user]) => user);
+      .then(([org]) => org);
   },
 };
 

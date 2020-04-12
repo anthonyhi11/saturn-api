@@ -48,6 +48,14 @@ UsersService = {
       });
   },
 
+  updateUser(db, id, newInfo) {
+    return db("users")
+      .where({ id })
+      .update(newInfo)
+      .returning("*")
+      .then(([user]) => user);
+  },
+
   serializeUser(user) {
     return {
       first_name: xss(user.first_name),

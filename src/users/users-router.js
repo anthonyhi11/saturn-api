@@ -57,7 +57,6 @@ usersRouter.route("/devsignup").post(jsonBodyParser, (req, res, next) => {
   //verify organization exists
   OrganizationsService.getOrganizationByPasscode(req.app.get("db"), passcode)
     .then((organization) => {
-      console.log("this is the org", organization[0]);
       if (organization[0] == null) {
         return res
           .status(400)
@@ -190,5 +189,61 @@ usersRouter.route("/adminsignup").post(jsonBodyParser, (req, res, next) => {
     })
     .catch(next);
 });
+
+usersRouter
+  .route("/personalsettings")
+  .patch(jsonBodyParser, (req, res, next) => {
+    let {
+      id,
+      email,
+      password,
+      password_confirm,
+      first_name,
+      last_name,
+    } = req.body;
+    //verify all required info is there.
+    for (const field of [
+      "id",
+      "first_name",
+      "last_name",
+      "email",
+      "password",
+      "password_confirm",
+    ])
+      if (!req.body[field]) {
+        return res.status(400).json({
+          error: { message: `Missing ${field} in request` },
+        });
+      }
+    //verify password matches password_confirm
+    if (password !== password_confirm) {
+      return res.status(400).json({
+        error: { message: "Passwords do not match" },
+      });
+    }
+
+    //verify password meets strength requirement
+    const passwordError = UsersService.validatePassword(password);
+
+    if (passwordError) {
+      return res.status(400).json({
+        error: { message: passwordError },
+      });
+    }
+
+    UsersService.hashPassword(password).then((hashedPass) => {
+      let newInfo = {
+        email,
+        password: hashedPass,
+        first_name,
+        last_name,
+      };
+      UsersService.updateUser(req.app.get("db"), id, newInfo).then(
+        (updatedUser) => {
+          res.status(204).json(UsersService.serializeUser(updatedUser));
+        }
+      );
+    });
+  });
 
 module.exports = usersRouter;

@@ -17,7 +17,7 @@ loginRouter.route("/").post(jsonBodyParser, (req, res, next) => {
     .then((dbUser) => {
       if (!dbUser) {
         return res.status(400).json({
-          error: `Incorrect username or password`,
+          error: `Incorrect email or password`,
         });
       } else {
         return LoginService.comparePasswords(
@@ -26,7 +26,7 @@ loginRouter.route("/").post(jsonBodyParser, (req, res, next) => {
         ).then((compareMatch) => {
           if (!compareMatch) {
             return res.status(400).json({
-              error: `Incorrect username or password`,
+              error: `Incorrect email or password`,
             });
           }
           const sub = dbUser.email;
