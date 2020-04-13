@@ -50,7 +50,7 @@ UsersService = {
 
   updateUser(db, id, newInfo) {
     return db("users")
-      .where({ id })
+      .where("id", id)
       .update(newInfo)
       .returning("*")
       .then(([user]) => user);

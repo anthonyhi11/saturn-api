@@ -20,14 +20,12 @@ function makeOrganizationsArray() {
 }
 
 function seedOrganizations(db, organizations) {
-  return db
-    .into("organizations")
-    .insert(organizations)
-    .then(() =>
-      db.raw(`SELECT setval('organizations_id_seq', ?)`, [
-        organizations[organizations.length - 1].id,
-      ])
-    );
+  return db.into("organizations").insert(organizations);
+  // .then(() =>
+  //   db.raw(`SELECT setval('organizations_id_seq', ?)`, [
+  //     organizations[organizations.length - 1].id,
+  //   ])
+  // );
 }
 
 function makeUsersArray() {

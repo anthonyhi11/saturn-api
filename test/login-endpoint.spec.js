@@ -30,10 +30,11 @@ describe(`Login Endpoints`, () => {
 
   afterEach("cleanup", () => cleanTables(db));
 
-  describe("post /api/login", () => {
+  describe.only("post /api/login", () => {
     beforeEach("insert users", () => {
-      seedOrganizations(db, testOrgs);
-      seedUsers(db, testUsers);
+      seedOrganizations(db, testOrgs).then(() => {
+        seedUsers(db, testUsers);
+      });
     });
 
     const requiredFields = ["email", "password"];
@@ -92,7 +93,7 @@ describe(`Login Endpoints`, () => {
       return supertest(app)
         .post("/api/login")
         .send(userValidCreds)
-        .then(() => {
+        .then((response) => {
           expect(200, {
             authToken: expectedToken,
           });

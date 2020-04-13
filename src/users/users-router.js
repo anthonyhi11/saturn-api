@@ -2,6 +2,7 @@ const express = require("express");
 const UsersService = require("./users-service");
 const OrganizationsService = require("../organizations/organizations-service");
 const path = require("path");
+const { requireAuth } = require("../jwt-auth/jwt-auth");
 const generator = require("generate-password");
 
 const usersRouter = express.Router();
@@ -192,18 +193,11 @@ usersRouter.route("/adminsignup").post(jsonBodyParser, (req, res, next) => {
 
 usersRouter
   .route("/personalsettings")
-  .patch(jsonBodyParser, (req, res, next) => {
-    let {
-      id,
-      email,
-      password,
-      password_confirm,
-      first_name,
-      last_name,
-    } = req.body;
+  .patch(requireAuth, jsonBodyParser, (req, res, next) => {
+    let loggedUserId = req.user.id;
+    let { email, password, password_confirm, first_name, last_name } = req.body;
     //verify all required info is there.
     for (const field of [
-      "id",
       "first_name",
       "last_name",
       "email",
@@ -238,7 +232,7 @@ usersRouter
         first_name,
         last_name,
       };
-      UsersService.updateUser(req.app.get("db"), id, newInfo).then(
+      UsersService.updateUser(req.app.get("db"), loggedUserId, newInfo).then(
         (updatedUser) => {
           res.status(204).json(UsersService.serializeUser(updatedUser));
         }
