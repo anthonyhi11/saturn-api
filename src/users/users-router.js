@@ -4,7 +4,7 @@ const OrganizationsService = require("../organizations/organizations-service");
 const path = require("path");
 const { requireAuth } = require("../jwt-auth/jwt-auth");
 const generator = require("generate-password");
-
+const StagesService = require("../stages/stages-service");
 const usersRouter = express.Router();
 const jsonBodyParser = express.json();
 
@@ -181,11 +181,33 @@ usersRouter.route("/adminsignup").post(jsonBodyParser, (req, res, next) => {
           return newUser;
         })
         .then((newUser) => {
-          return UsersService.addUser(req.app.get("db"), newUser).then(
-            (user) => {
-              res.status(201).json(UsersService.serializeUser(user));
-            }
-          );
+          return UsersService.addUser(req.app.get("db"), newUser)
+            .then((user) => { //adding the initial stages.........
+              let Stages = [
+                {
+                  name: "New",
+                  org_id: user.org_id,
+                },
+                {
+                  name: "Working",
+                  org_id: user.org_id,
+                },
+                {
+                  name: "Blocked",
+                  org_id: user.org_id,
+                },
+                {
+                  name: "Done",
+                  org_id: user.org_id,
+                },
+              ];
+              Stages.forEach((stage) => {
+                StagesService.addStages(req.app.get("db"), stage);
+              });
+            })
+            .then(() => {
+              return res.status(201).end();
+            });
         });
     })
     .catch(next);

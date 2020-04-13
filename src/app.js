@@ -7,7 +7,8 @@ const { NODE_ENV } = require("./config");
 const organizationsRouter = require("./organizations/organizations-router");
 const usersRouter = require("./users/users-router");
 const loginRouter = require("./login/login-router");
-
+const projectsRouter = require("./projects/projects-router");
+const stagesRouter = require("./stages/stages-router");
 const app = express();
 
 const morganOption = NODE_ENV === "production" ? "tiny" : "common";
@@ -19,6 +20,9 @@ app.use(cors());
 app.use("/api/login", loginRouter);
 app.use("/api/organizations", organizationsRouter);
 app.use("/api/users", usersRouter);
+app.use("/api/projects", projectsRouter);
+app.use("/api/stages", stagesRouter);
+
 app.get("/", (req, res) => {
   res.send("Hello, world!");
 });

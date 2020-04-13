@@ -73,6 +73,13 @@ function seedUsers(db, users) {
     );
 }
 
+function createJwt(subject, payload) {
+  return jwt.sign(payload, config.JWT_SECRET, {
+    subject,
+    algorithm: "HS256",
+  });
+}
+
 function cleanTables(db) {
   return db.transaction((trx) =>
     trx
@@ -113,4 +120,5 @@ module.exports = {
   seedUsers,
   makeOrganizationsArray,
   seedOrganizations,
+  createJwt,
 };

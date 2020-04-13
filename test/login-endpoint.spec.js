@@ -30,7 +30,7 @@ describe(`Login Endpoints`, () => {
 
   afterEach("cleanup", () => cleanTables(db));
 
-  describe.only("post /api/login", () => {
+  describe("post /api/login", () => {
     beforeEach("insert users", () => {
       seedOrganizations(db, testOrgs).then(() => {
         seedUsers(db, testUsers);

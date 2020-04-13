@@ -17,7 +17,7 @@ const OrganizationsService = {
   },
   updateOrganization(knex, id, newInfo) {
     return knex("organizations")
-      .where({ id })
+      .where("id", id)
       .update(newInfo)
       .returning("*")
       .then(([org]) => org);
