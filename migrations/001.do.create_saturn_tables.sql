@@ -45,5 +45,5 @@ CREATE TABLE comments (
   user_id INTEGER REFERENCES users(id) ON DELETE CASCADE NOT NULL,
   comment TEXT NOT NULL,
   date_created TIMESTAMP DEFAULT now() NOT NULL,
-  story_id INTEGER REFERENCES stories(id)
+  story_id INTEGER REFERENCES stories(id) ON DELETE CASCADE NOT NULL
 );

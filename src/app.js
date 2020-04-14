@@ -10,6 +10,7 @@ const loginRouter = require("./login/login-router");
 const projectsRouter = require("./projects/projects-router");
 const stagesRouter = require("./stages/stages-router");
 const storiesRouter = require("./stories/stories-router");
+const commentsRouter = require("./comments/comments-router");
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.use("/api/users", usersRouter);
 app.use("/api/projects", projectsRouter);
 app.use("/api/stages", stagesRouter);
 app.use("/api/stories", storiesRouter);
+app.use("/api/comments", commentsRouter);
 
 app.get("/", (req, res) => {
   res.send("Hello, world!");

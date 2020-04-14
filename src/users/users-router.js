@@ -182,7 +182,8 @@ usersRouter.route("/adminsignup").post(jsonBodyParser, (req, res, next) => {
         })
         .then((newUser) => {
           return UsersService.addUser(req.app.get("db"), newUser)
-            .then((user) => { //adding the initial stages.........
+            .then((user) => {
+              //adding the initial stages.........
               let Stages = [
                 {
                   name: "New",
@@ -211,6 +212,17 @@ usersRouter.route("/adminsignup").post(jsonBodyParser, (req, res, next) => {
         });
     })
     .catch(next);
+});
+
+usersRouter.route("/:userId").delete(requireAuth, (req, res, next) => {
+  if (req.user.role !== "admin") {
+    return res.status(401).json({ error: { message: "Unauthorized request" } });
+  }
+  let user_id = req.params.userId;
+
+  UsersService.deleteUser(req.app.get("db"), user_id).then(() => {
+    res.status(204).end();
+  });
 });
 
 usersRouter
@@ -254,6 +266,7 @@ usersRouter
         first_name,
         last_name,
       };
+
       UsersService.updateUser(req.app.get("db"), loggedUserId, newInfo).then(
         (updatedUser) => {
           res.status(204).json(UsersService.serializeUser(updatedUser));

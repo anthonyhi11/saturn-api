@@ -56,6 +56,10 @@ UsersService = {
       .then(([user]) => user);
   },
 
+  deleteUser(db, id) {
+    return db("users").where("id", id).delete();
+  },
+
   serializeUser(user) {
     return {
       first_name: xss(user.first_name),
