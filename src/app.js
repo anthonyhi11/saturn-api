@@ -9,6 +9,8 @@ const usersRouter = require("./users/users-router");
 const loginRouter = require("./login/login-router");
 const projectsRouter = require("./projects/projects-router");
 const stagesRouter = require("./stages/stages-router");
+const storiesRouter = require("./stories/stories-router");
+
 const app = express();
 
 const morganOption = NODE_ENV === "production" ? "tiny" : "common";
@@ -22,6 +24,7 @@ app.use("/api/organizations", organizationsRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/projects", projectsRouter);
 app.use("/api/stages", stagesRouter);
+app.use("/api/stories", storiesRouter);
 
 app.get("/", (req, res) => {
   res.send("Hello, world!");
