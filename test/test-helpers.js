@@ -5,27 +5,18 @@ const config = require("../src/config");
 function makeOrganizationsArray() {
   return [
     {
-      id: 1,
       name: "Stardew",
-      org_passcode: "12345",
-      date_created: new Date("2029-01-22T16:28:32.615Z"),
+      org_passcode: "foo",
     },
     {
-      id: 2,
       name: "Valley",
-      org_passcode: "54321",
-      date_created: new Date("2029-01-22T16:28:32.615Z"),
+      org_passcode: "bar",
     },
   ];
 }
 
 function seedOrganizations(db, organizations) {
-  return db.into("organizations").insert(organizations);
-  // .then(() =>
-  //   db.raw(`SELECT setval('organizations_id_seq', ?)`, [
-  //     organizations[organizations.length - 1].id,
-  //   ])
-  // );
+  return db.insert(organizations).into("organizations");
 }
 
 function makeUsersArray() {
@@ -71,6 +62,72 @@ function seedUsers(db, users) {
     .then(() =>
       db.raw(`SELECT setval('users_id_seq', ?)`, [users[users.length - 1].id])
     );
+}
+
+function makeProjectsArray() {
+  return [
+    {
+      name: "project 1",
+      org_id: 1,
+    },
+    {
+      name: "project 2",
+      org_id: 2,
+    },
+    {
+      name: "project 3",
+      org_id: 1,
+    },
+  ];
+}
+
+function seedProjects(db, projects) {
+  return db.into("projects").insert(projects);
+}
+
+function makeStoriesArray() {
+  return [
+    {
+      id: 1,
+      project_id: 1,
+      user_id: 1,
+      stage_id: 1,
+      title: "Test Title",
+      story_desc:
+        "This is a story. As a user I want to click on a story and see all the comments",
+    },
+    {
+      id: 2,
+      project_id: 1,
+      user_id: 2,
+      stage_id: 1,
+      title: "Test Title",
+      story_desc:
+        "This is a story. As a user I want to click on a story and see all the comments",
+    },
+    {
+      id: 3,
+      project_id: 2,
+      user_id: 3,
+      stage_id: 2,
+      title: "Test Title",
+      story_desc:
+        "THis is a story. As a user I want to click on a story and see all the comments",
+    },
+    {
+      id: 4,
+      project_id: 2,
+      user_id: 3,
+      stage_id: 4,
+      title: "Test Title",
+      story_desc:
+        "THis is a story. As a user I want to click on a story and see all the comments",
+    },
+  ];
+}
+
+function seedStories(db, stories) {
+  return db.into("stories").insert(stories);
 }
 
 function createJwt(subject, payload) {
@@ -120,5 +177,9 @@ module.exports = {
   seedUsers,
   makeOrganizationsArray,
   seedOrganizations,
+  seedProjects,
+  makeProjectsArray,
+  makeStoriesArray,
+  seedStories,
   createJwt,
 };

@@ -1,4 +1,3 @@
-require("dotenv");
 const knex = require("knex");
 const jwt = require("jsonwebtoken");
 const {
@@ -26,14 +25,14 @@ describe(`Login Endpoints`, () => {
 
   after("disconnect from db", () => db.destroy());
 
-  before("cleanup", () => cleanTables(db));
+  beforeEach("cleanup", () => cleanTables(db));
 
   afterEach("cleanup", () => cleanTables(db));
 
   describe("post /api/login", () => {
     beforeEach("insert users", () => {
-      seedOrganizations(db, testOrgs).then(() => {
-        seedUsers(db, testUsers);
+      return seedOrganizations(db, testOrgs).then(() => {
+        return seedUsers(db, testUsers);
       });
     });
 
@@ -90,14 +89,7 @@ describe(`Login Endpoints`, () => {
           algorithm: "HS256",
         }
       );
-      return supertest(app)
-        .post("/api/login")
-        .send(userValidCreds)
-        .then((response) => {
-          expect(200, {
-            authToken: expectedToken,
-          });
-        });
+      return supertest(app).post("/api/login").send(userValidCreds).expect(200);
     });
   });
 });

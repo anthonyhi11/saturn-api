@@ -1,4 +1,3 @@
-require("dotenv");
 const knex = require("knex");
 const app = require("../src/app");
 const {
@@ -33,14 +32,14 @@ describe("Projects Endpoints", () => {
 
   afterEach("cleanup", () => cleanTables(db));
 
-  describe.only("POST projects", () => {
+  describe("POST projects", () => {
     beforeEach("seeds db", () => {
-      seedOrganizations(db, testOrganizations).then(() => {
-        seedUsers(db, testUsers);
+      return seedOrganizations(db, testOrganizations).then(() => {
+        return seedUsers(db, testUsers);
       });
     });
 
-    it("returns a 201 with project cretaed", () => {
+    it("returns a 201 with project created", () => {
       let testUser = testUsers[0];
 
       let goodProject = {

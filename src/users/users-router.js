@@ -58,17 +58,17 @@ usersRouter.route("/devsignup").post(jsonBodyParser, (req, res, next) => {
   //verify organization exists
   OrganizationsService.getOrganizationByPasscode(req.app.get("db"), passcode)
     .then((organization) => {
-      if (organization[0] == null) {
+      if (organization[0] === undefined) {
         return res
-          .status(400)
+          .status(404)
           .json({ error: { message: "Organization doesn't exist" } });
       } else {
         return organization;
       }
     })
     .then((organization) => {
-      if (organization[0] == null) {
-        return res.status(400, {
+      if (organization[0] === undefined) {
+        return res.status(404, {
           error: { message: "organization.id is null" },
         });
       } else {
@@ -206,8 +206,8 @@ usersRouter.route("/adminsignup").post(jsonBodyParser, (req, res, next) => {
                 StagesService.addStages(req.app.get("db"), stage);
               });
             })
-            .then(() => {
-              return res.status(201).end();
+            .then((user) => {
+              return res.status(201).json(serializeUser(user));
             });
         });
     })

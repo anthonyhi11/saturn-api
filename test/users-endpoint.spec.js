@@ -1,4 +1,3 @@
-require("dotenv");
 const knex = require("knex");
 const app = require("../src/app");
 const {
@@ -7,9 +6,9 @@ const {
   makeOrganizationsArray,
   makeUsersArray,
   seedOrganizations,
-} = require("../test/test-helpers");
+} = require("./test-helpers");
 
-describe("Users Endpoints", () => {
+describe("Users Endpoints", function () {
   let db;
   const testOrganizations = makeOrganizationsArray();
 
@@ -18,6 +17,7 @@ describe("Users Endpoints", () => {
       client: "pg",
       connection: process.env.TEST_DATABASE_URL,
     });
+
     app.set("db", db);
   });
 
@@ -27,12 +27,8 @@ describe("Users Endpoints", () => {
 
   afterEach("cleanup", () => cleanTables(db));
 
-  describe("POST User", () => {
+  describe("POST dev User", () => {
     context("validation", () => {
-      beforeEach("seeds", () => {
-        seedOrganizations(db, testOrganizations);
-      });
-
       const requiredFields = [
         "first_name",
         "last_name",
@@ -60,31 +56,24 @@ describe("Users Endpoints", () => {
             .expect(400);
         });
       });
-      // it("responds with 400 if passcode is incorrect or not there", () => {
-      //   let incorrectPasscodeAttempt = {
-      //     first_name: "aeadsf",
-      //     last_name: "asdlfakjdf",
-      //     email: "asldfkajsdf",
-      //     password: "Password123!",
-      //     password_confirm: "Password123!",
-      //     passcode: "asdflkj",
-      //   };
-      //   return supertest(app)
-      //     .post("/api/users/devsignup")
-      //     .send(incorrectPasscodeAttempt)
-      //     .expect(400, {
-      //       error: {
-      //         message: "Organization doesn't exist",
-      //       },
-      //     });
-      // });
+      it("responds with 400 if passcode is incorrect or not there", () => {
+        let incorrectPasscodeAttempt = {
+          first_name: "aeadsf",
+          last_name: "asdlfakjdf",
+          email: "asldfkajsdf",
+          password: "Password123!",
+          password_confirm: "Password123!",
+          passcode: "asdflkj",
+        };
+        return supertest(app)
+          .post("/api/users/devsignup")
+          .send(incorrectPasscodeAttempt)
+          .expect(404);
+      });
     });
 
-    context("HAPPY PATH POST USER", () => {
-      beforeEach("seeds", () => {
-        seedOrganizations(db, testOrganizations);
-      });
-
+    context("HAPPY PATH POST DEV USER", () => {
+      before("seeds", () => seedOrganizations(db, testOrganizations));
       it("responds with a 201 and a serialized user", () => {
         let successfulUser = {
           first_name: "Successful",
@@ -100,21 +89,21 @@ describe("Users Endpoints", () => {
           .expect(201);
       });
     });
-    context("happy path for admin sign up", () => {
-      it("responds with a 201 and serialized user", () => {
-        let goodAdminAttempt = {
-          first_name: "Anthony",
-          last_name: "Hill",
-          email: "admin@gmail.com",
-          password: "AAaa11!!",
-          password_confirm: "AAaa11!!",
-          org_name: "Stardew Crew",
-        };
-        supertest(app)
-          .post("/api/users/adminsignup")
-          .send(goodAdminAttempt)
-          .expect(201);
-      });
-    });
+    // context("happy path for admin sign up", () => {
+    //   it("responds with a 201 and serialized admin user", () => {
+    //     let goodAdminAttempt = {
+    //       first_name: "Anthony",
+    //       last_name: "Hill",
+    //       email: "admin@gmail.com",
+    //       password: "AAaa11!!",
+    //       password_confirm: "AAaa11!!",
+    //       org_name: "Stardew Crew",
+    //     };
+    //     supertest(app)
+    //       .post("/api/users/adminsignup")
+    //       .send(goodAdminAttempt)
+    //       .expect(201);
+    //   });
+    // });
   });
 });
