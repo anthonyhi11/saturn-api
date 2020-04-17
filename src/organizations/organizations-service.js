@@ -9,6 +9,10 @@ const OrganizationsService = {
       });
   },
 
+  getOrganizationById(knex, id) {
+    return knex.select("*").from("organizations").where("id", id).first();
+  },
+
   getOrganizationByPasscode(knex, passcode) {
     return knex
       .select("*")

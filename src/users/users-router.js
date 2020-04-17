@@ -8,6 +8,20 @@ const StagesService = require("../stages/stages-service");
 const usersRouter = express.Router();
 const jsonBodyParser = express.json();
 
+usersRouter.route("/").get(requireAuth, (req, res, next) => {
+  let user = req.user;
+  UsersService.getUsersById(req.app.get("db"), user.id).then((user) => {
+    res.status(200).json(UsersService.serializeUser(user));
+  });
+});
+
+usersRouter.route("/all").get(requireAuth, (req, res, next) => {
+  let user = req.user;
+  UsersService.getUsers(req.app.get("db"), user.org_id).then((users) => {
+    res.status(200).json(users.map((user) => UsersService.serializeUser(user)));
+  });
+});
+
 usersRouter.route("/devsignup").post(jsonBodyParser, (req, res, next) => {
   let {
     first_name,
@@ -48,13 +62,6 @@ usersRouter.route("/devsignup").post(jsonBodyParser, (req, res, next) => {
     });
   }
 
-  //verify email isn't already taken
-  UsersService.hasEmail(req.app.get("db"), email).then((hasEmail) => {
-    if (hasEmail) {
-      return res.status(400).json({ error: `Email already exists. Log In` });
-    }
-  });
-
   //verify organization exists
   OrganizationsService.getOrganizationByPasscode(req.app.get("db"), passcode)
     .then((organization) => {
@@ -80,7 +87,7 @@ usersRouter.route("/devsignup").post(jsonBodyParser, (req, res, next) => {
               email,
               password: hashedPassword,
               org_id: organization[0].id,
-              role: "dev",
+              role: "Developer",
             };
             return newUser;
           })
@@ -135,13 +142,6 @@ usersRouter.route("/adminsignup").post(jsonBodyParser, (req, res, next) => {
     });
   }
 
-  //verify email isn't already taken
-  UsersService.hasEmail(req.app.get("db"), email).then((hasEmail) => {
-    if (hasEmail) {
-      return res.status(400).json({ error: `Email already exists. Log In` });
-    }
-  });
-
   //create ORGANIZATION!
 
   if (org_name == null || org_name == " ") {
@@ -176,13 +176,13 @@ usersRouter.route("/adminsignup").post(jsonBodyParser, (req, res, next) => {
             email,
             password: hashedPassword,
             org_id,
-            role: "admin",
+            role: "Admin",
           };
           return newUser;
         })
         .then((newUser) => {
-          return UsersService.addUser(req.app.get("db"), newUser)
-            .then((user) => {
+          return UsersService.addUser(req.app.get("db"), newUser).then(
+            (user) => {
               //adding the initial stages.........
               let Stages = [
                 {
@@ -205,10 +205,9 @@ usersRouter.route("/adminsignup").post(jsonBodyParser, (req, res, next) => {
               Stages.forEach((stage) => {
                 StagesService.addStages(req.app.get("db"), stage);
               });
-            })
-            .then((user) => {
-              return res.status(201).json(serializeUser(user));
-            });
+              return res.status(201).json(UsersService.serializeUser(user));
+            }
+          );
         });
     })
     .catch(next);

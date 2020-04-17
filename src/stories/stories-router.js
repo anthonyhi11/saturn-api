@@ -16,22 +16,23 @@ const sanitizeStory = (story) => ({
 });
 
 storiesRouter
-  .route("/")
+  .route("/:projectId")
   .all(requireAuth)
-  .get(jsonBodyParser, (req, res, next) => {
-    let { project_id } = req.body;
-    StoriesService.getStories(req.app.get("db"), project_id)
+  .get((req, res, next) => {
+    let { projectId } = req.params;
+    StoriesService.getStories(req.app.get("db"), projectId)
       .then((stories) => {
         res.status(200).json(stories.map((story) => sanitizeStory(story)));
       })
       .catch(next);
   })
   .post(requireAuth, jsonBodyParser, (req, res, next) => {
-    let { user_id, project_id, stage_id, title, story_desc } = req.body;
+    let { user_id, stage_id, title, story_desc } = req.body;
+    let { projectId } = req.params;
     let newStory = {
       title: title,
       user_id: user_id,
-      project_id: project_id,
+      project_id: projectId,
       stage_id: stage_id,
       story_desc: story_desc,
     };
@@ -46,7 +47,7 @@ storiesRouter
   .route("/:storyId")
   .delete(requireAuth, (req, res, next) => {
     let { storyId } = req.params;
-    if (req.user.role !== "admin") {
+    if (req.user.role !== "Admin") {
       return res
         .status(401)
         .json({ error: { message: "Unauthorized Request" } });
@@ -66,12 +67,6 @@ storiesRouter
       stage_id,
       story_desc,
     };
-    if (req.user.role !== "admin") {
-      return res
-        .status(401)
-        .json({ error: { message: "Unauthorized reqest" } });
-    }
-
     StoriesService.updateStory(req.app.get("db"), storyId, newInfo).then(
       (story) => {
         res.status(201).json(sanitizeStory(story));

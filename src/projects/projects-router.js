@@ -9,6 +9,8 @@ const jsonBodyParser = express.json();
 (serializeProject = (project) => ({
   name: xss(project.name),
   org_id: xss(project.org_id),
+  id: project.id,
+  status: project.status
 })),
   projectsRouter
     .route("/")
@@ -23,7 +25,7 @@ const jsonBodyParser = express.json();
         .catch(next);
     })
     .post(requireAuth, jsonBodyParser, (req, res, next) => {
-      if (req.user.role !== "admin") {
+      if (req.user.role !== "Admin") {
         return res
           .status(401)
           .json({ error: { message: "unauthorized request" } });
@@ -38,7 +40,7 @@ const jsonBodyParser = express.json();
         .catch(next);
     })
     .patch(requireAuth, jsonBodyParser, (req, res, next) => {
-      if (req.user.role !== "admin") {
+      if (req.user.role !== "Admin") {
         return res
           .status(401)
           .json({ error: { message: "Unauthorized request" } });

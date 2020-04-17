@@ -25,7 +25,7 @@ stagesRouter
   })
   .patch(requireAuth, jsonBodyParser, (req, res, next) => {
     let loggedUser = req.user;
-    if (loggedUser.role !== "admin") {
+    if (loggedUser.role !== "Admin") {
       return res
         .status(401)
         .json({ error: { message: "Unauthorized Request" } });

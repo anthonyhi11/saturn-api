@@ -3,13 +3,28 @@ const OrganizationsService = require("./organizations-service");
 const { requireAuth } = require("../jwt-auth/jwt-auth");
 const organizationsRouter = express.Router();
 const jsonBodyParser = express.json();
+const xss = require("xss");
+
+const serializeOrg = (org) => ({
+  name: xss(org.name),
+  org_passcode: org.org_passcode,
+});
+
+organizationsRouter.route("/").get(requireAuth, (req, res, next) => {
+  let user = req.user;
+  OrganizationsService.getOrganizationById(req.app.get("db"), user.org_id)
+    .then((organization) => {
+      res.status(200).json(serializeOrg(organization));
+    })
+    .catch(next);
+});
 
 organizationsRouter
   .route("/:org_id")
   .patch(requireAuth, jsonBodyParser, (req, res, next) => {
     let userRole = req.user.role;
 
-    if (userRole !== "admin") {
+    if (userRole !== "Admin") {
       return res
         .status(401)
         .json({ error: { message: "Unauthorized Request" } });

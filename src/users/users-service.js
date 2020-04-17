@@ -38,6 +38,10 @@ UsersService = {
     return db.select("*").from("users").where("org_id", orgId); //returns users for specific organization
   },
 
+  getUsersById(db, id) {
+    return db.select("*").from("users").where("id", id).first();
+  },
+
   addUser(db, newUser) {
     return db
       .insert(newUser)
@@ -65,6 +69,8 @@ UsersService = {
       first_name: xss(user.first_name),
       last_name: xss(user.last_name),
       email: xss(user.email),
+      role: user.role,
+      id: user.id,
     };
   },
 };
