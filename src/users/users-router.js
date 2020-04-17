@@ -1,5 +1,6 @@
 const express = require("express");
 const UsersService = require("./users-service");
+const xss = require("xss");
 const OrganizationsService = require("../organizations/organizations-service");
 const path = require("path");
 const { requireAuth } = require("../jwt-auth/jwt-auth");
@@ -7,6 +8,14 @@ const generator = require("generate-password");
 const StagesService = require("../stages/stages-service");
 const usersRouter = express.Router();
 const jsonBodyParser = express.json();
+
+const serializeUser = (user) => ({
+  first_name: xss(user.first_name),
+  last_name: xss(user.last_name),
+  email: xss(user.email),
+  role: user.role,
+  id: user.id,
+});
 
 usersRouter.route("/").get(requireAuth, (req, res, next) => {
   let user = req.user;
@@ -62,45 +71,56 @@ usersRouter.route("/devsignup").post(jsonBodyParser, (req, res, next) => {
     });
   }
 
-  //verify organization exists
-  OrganizationsService.getOrganizationByPasscode(req.app.get("db"), passcode)
-    .then((organization) => {
-      if (organization[0] === undefined) {
-        return res
-          .status(404)
-          .json({ error: { message: "Organization doesn't exist" } });
-      } else {
-        return organization;
-      }
-    })
-    .then((organization) => {
-      if (organization[0] === undefined) {
-        return res.status(404, {
-          error: { message: "organization.id is null" },
+  UsersService.hasEmail(req.app.get("db"), email).then((hasEmail) => {
+    if (hasEmail) {
+      return res
+        .status(400)
+        .json({ error: { message: `Email already taken` } });
+    } else {
+      //verify organization exists
+      OrganizationsService.getOrganizationByPasscode(
+        req.app.get("db"),
+        passcode
+      )
+        .then((organization) => {
+          if (organization[0] === undefined) {
+            return res
+              .status(404)
+              .json({ error: { message: "Organization doesn't exist" } });
+          } else {
+            return organization;
+          }
+        })
+        .then((organization) => {
+          if (organization[0] === undefined) {
+            return res.status(404, {
+              error: { message: "organization.id is null" },
+            });
+          } else {
+            UsersService.hashPassword(password) //hashing password
+              .then((hashedPassword) => {
+                const newUser = {
+                  first_name,
+                  last_name,
+                  email,
+                  password: hashedPassword,
+                  org_id: organization[0].id,
+                  role: "Developer",
+                };
+                return newUser;
+              })
+              .then((newUser) => {
+                return UsersService.addUser(req.app.get("db"), newUser).then(
+                  (user) => {
+                    res.status(201).json(UsersService.serializeUser(user));
+                  }
+                );
+              })
+              .catch(next);
+          }
         });
-      } else {
-        UsersService.hashPassword(password) //hashing password
-          .then((hashedPassword) => {
-            const newUser = {
-              first_name,
-              last_name,
-              email,
-              password: hashedPassword,
-              org_id: organization[0].id,
-              role: "Developer",
-            };
-            return newUser;
-          })
-          .then((newUser) => {
-            return UsersService.addUser(req.app.get("db"), newUser).then(
-              (user) => {
-                res.status(201).json(UsersService.serializeUser(user));
-              }
-            );
-          })
-          .catch(next);
-      }
-    });
+    }
+  });
 });
 
 //admin sign up creates an organization. Creates an admin account and associates the new org_id to the admin account.
@@ -162,55 +182,63 @@ usersRouter.route("/adminsignup").post(jsonBodyParser, (req, res, next) => {
     org_passcode: passcode,
   };
 
-  OrganizationsService.addOrganization(req.app.get("db"), newOrganization)
-    .then((organization) => {
-      return organization;
-    })
-    .then((organization) => {
-      let org_id = organization.id;
-      UsersService.hashPassword(password) //hashing password
-        .then((hashedPassword) => {
-          const newUser = {
-            first_name,
-            last_name,
-            email,
-            password: hashedPassword,
-            org_id,
-            role: "Admin",
-          };
-          return newUser;
+  UsersService.hasEmail(req.app.get("db"), email).then((hasEmail) => {
+    if (hasEmail) {
+      return res
+        .status(400)
+        .json({ error: { message: `Email already taken` } });
+    } else {
+      OrganizationsService.addOrganization(req.app.get("db"), newOrganization)
+        .then((organization) => {
+          return organization;
         })
-        .then((newUser) => {
-          return UsersService.addUser(req.app.get("db"), newUser).then(
-            (user) => {
-              //adding the initial stages.........
-              let Stages = [
-                {
-                  name: "New",
-                  org_id: user.org_id,
-                },
-                {
-                  name: "Working",
-                  org_id: user.org_id,
-                },
-                {
-                  name: "Blocked",
-                  org_id: user.org_id,
-                },
-                {
-                  name: "Done",
-                  org_id: user.org_id,
-                },
-              ];
-              Stages.forEach((stage) => {
-                StagesService.addStages(req.app.get("db"), stage);
-              });
-              return res.status(201).json(UsersService.serializeUser(user));
-            }
-          );
-        });
-    })
-    .catch(next);
+        .then((organization) => {
+          let org_id = organization.id;
+          UsersService.hashPassword(password) //hashing password
+            .then((hashedPassword) => {
+              const newUser = {
+                first_name,
+                last_name,
+                email,
+                password: hashedPassword,
+                org_id,
+                role: "Admin",
+              };
+              return newUser;
+            })
+            .then((newUser) => {
+              return UsersService.addUser(req.app.get("db"), newUser).then(
+                (user) => {
+                  //adding the initial stages.........
+                  let Stages = [
+                    {
+                      name: "New",
+                      org_id: user.org_id,
+                    },
+                    {
+                      name: "Working",
+                      org_id: user.org_id,
+                    },
+                    {
+                      name: "Blocked",
+                      org_id: user.org_id,
+                    },
+                    {
+                      name: "Done",
+                      org_id: user.org_id,
+                    },
+                  ];
+                  Stages.forEach((stage) => {
+                    StagesService.addStages(req.app.get("db"), stage);
+                  });
+                  return res.status(201).json(UsersService.serializeUser(user));
+                }
+              );
+            });
+        })
+        .catch(next);
+    }
+  });
 });
 
 usersRouter.route("/:userId").delete(requireAuth, (req, res, next) => {
@@ -258,20 +286,45 @@ usersRouter
       });
     }
 
-    UsersService.hashPassword(password).then((hashedPass) => {
-      let newInfo = {
-        email,
-        password: hashedPass,
-        first_name,
-        last_name,
-      };
+    if (email !== req.user.email) {
+      UsersService.hasEmail(req.app.get("db"), email).then((hasEmail) => {
+        if (hasEmail) {
+          return res.status(400).json({ error: `Email already taken` });
+        } else {
+          UsersService.hashPassword(password).then((hashedPass) => {
+            let newInfo = {
+              email,
+              password: hashedPass,
+              first_name,
+              last_name,
+            };
 
-      UsersService.updateUser(req.app.get("db"), loggedUserId, newInfo).then(
-        (updatedUser) => {
-          res.status(204).json(UsersService.serializeUser(updatedUser));
+            UsersService.updateUser(
+              req.app.get("db"),
+              loggedUserId,
+              newInfo
+            ).then((updatedUser) => {
+              res.status(201).end();
+            });
+          });
         }
-      );
-    });
+      });
+    } else {
+      UsersService.hashPassword(password).then((hashedPass) => {
+        let newInfo = {
+          email,
+          password: hashedPass,
+          first_name,
+          last_name,
+        };
+
+        UsersService.updateUser(req.app.get("db"), loggedUserId, newInfo).then(
+          (updatedUser) => {
+            res.status(201).end();
+          }
+        );
+      });
+    }
   });
 
 module.exports = usersRouter;

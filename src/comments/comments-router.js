@@ -10,6 +10,7 @@ const serializeComments = (comment) => ({
   user_id: comment.user_id,
   comment: comment.comment,
   story_id: comment.story_id,
+  id: comment.id,
 });
 
 commentsRouter
