@@ -4,10 +4,12 @@ const { requireAuth } = require("../jwt-auth/jwt-auth");
 const organizationsRouter = express.Router();
 const jsonBodyParser = express.json();
 const xss = require("xss");
+const generator = require("generate-password");
 
 const serializeOrg = (org) => ({
   name: xss(org.name),
   org_passcode: org.org_passcode,
+  id: org.id,
 });
 
 organizationsRouter.route("/").get(requireAuth, (req, res, next) => {
@@ -32,8 +34,14 @@ organizationsRouter
     //need to make a decision on how they will update anything.
     let org_id = req.params.org_id;
     let { name } = req.body;
+    const passcode = generator.generate({
+      length: 10,
+      numbers: true,
+      excludeSimilarCharacters: true,
+    });
     let newOrgInfo = {
       name: name,
+      org_passcode: passcode,
       date_modified: "now()",
     };
 
@@ -42,7 +50,7 @@ organizationsRouter
       org_id,
       newOrgInfo
     ).then((updatedOrganization) => {
-      res.status(204).end();
+      res.status(201).end();
     });
   });
 
