@@ -242,7 +242,7 @@ usersRouter.route("/adminsignup").post(jsonBodyParser, (req, res, next) => {
 });
 
 usersRouter.route("/:userId").delete(requireAuth, (req, res, next) => {
-  if (req.user.role !== "admin") {
+  if (req.user.role !== "Admin") {
     return res.status(401).json({ error: { message: "Unauthorized request" } });
   }
   let user_id = req.params.userId;

@@ -33,7 +33,7 @@ const jsonBodyParser = express.json();
       let newProject = {
         name: req.body.name,
         org_id: req.user.org_id,
-        status: "active",
+        status: "Active",
       };
       ProjectsService.addProject(req.app.get("db"), newProject)
         .then((project) => res.status(201).json(serializeProject(project)))
