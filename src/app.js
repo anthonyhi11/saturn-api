@@ -28,10 +28,6 @@ app.use("/api/stages", stagesRouter);
 app.use("/api/stories", storiesRouter);
 app.use("/api/comments", commentsRouter);
 
-app.get("/", (req, res) => {
-  res.send("Hello, world!");
-});
-
 app.use(function errorHandler(error, req, res, next) {
   let response;
   if (NODE_ENV === "production") {

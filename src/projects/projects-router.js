@@ -10,7 +10,7 @@ const jsonBodyParser = express.json();
   name: xss(project.name),
   org_id: xss(project.org_id),
   id: project.id,
-  status: project.status
+  status: project.status,
 })),
   projectsRouter
     .route("/")
@@ -50,13 +50,11 @@ const jsonBodyParser = express.json();
         name: req.body.name,
         status: req.body.status,
       };
-      ProjectsService.updateProject(
-        req.app.get("db"),
-        req.body.id,
-        newInfo
-      ).then((project) => {
-        return res.status(204).json(serializeProject(project));
-      });
+      ProjectsService.updateProject(req.app.get("db"), req.body.id, newInfo)
+        .then((project) => {
+          return res.status(204).json(serializeProject(project));
+        })
+        .catch(next);
     });
 
 module.exports = projectsRouter;

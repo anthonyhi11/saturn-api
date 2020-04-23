@@ -51,7 +51,7 @@ describe(`Login Endpoints`, () => {
           .post("/api/login")
           .send(loginAttempt)
           .expect(400, {
-            error: `Missing '${field}' in request body`,
+            error: { message: `Missing '${field}' in request body` },
           });
       });
     });
@@ -61,9 +61,12 @@ describe(`Login Endpoints`, () => {
         email: "not",
         password: "exists",
       };
-      return supertest(app).post("/api/login").send(invalidUser).expect(400, {
-        error: `Incorrect email or password`,
-      });
+      return supertest(app)
+        .post("/api/login")
+        .send(invalidUser)
+        .expect(400, {
+          error: { message: `Incorrect email or password` },
+        });
     });
 
     it("responds 400 when bad pass", () => {
@@ -71,9 +74,12 @@ describe(`Login Endpoints`, () => {
         email: testUser.email,
         password: "bad",
       };
-      return supertest(app).post("/api/login").send(invalidPass).expect(400, {
-        error: `Incorrect email or password`,
-      });
+      return supertest(app)
+        .post("/api/login")
+        .send(invalidPass)
+        .expect(400, {
+          error: { message: `Incorrect email or password` },
+        });
     });
 
     it("responds with 200 and JWT auth token when valid", () => {

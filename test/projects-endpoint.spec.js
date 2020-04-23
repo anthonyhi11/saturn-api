@@ -6,6 +6,8 @@ const {
   makeOrganizationsArray,
   makeUsersArray,
   seedOrganizations,
+  makeProjectsArray,
+  seedProjects,
   createJwt,
 } = require("../test/test-helpers");
 
@@ -13,6 +15,8 @@ describe("Projects Endpoints", () => {
   let db;
   const testOrganizations = makeOrganizationsArray();
   const testUsers = makeUsersArray();
+  let testProjects = makeProjectsArray();
+  let project = testProjects[0];
   const adminUser = testUsers[0];
   const devUser = testUsers[1];
   const adminSub = adminUser.email;
@@ -35,8 +39,17 @@ describe("Projects Endpoints", () => {
   describe("POST projects", () => {
     beforeEach("seeds db", () => {
       return seedOrganizations(db, testOrganizations).then(() => {
-        return seedUsers(db, testUsers);
+        return seedUsers(db, testUsers).then(() => {
+          return seedProjects(db, testProjects);
+        });
       });
+    });
+
+    it("gets projects returns 200", () => {
+      return supertest(app)
+        .get("/api/projects")
+        .set("Authorization", `bearer ${createJwt(adminSub, adminPayload)}`)
+        .expect(200);
     });
 
     it("returns a 201 with project created", () => {
@@ -52,6 +65,19 @@ describe("Projects Endpoints", () => {
         .set("Authorization", `bearer ${createJwt(adminSub, adminPayload)}`)
         .send(goodProject)
         .expect(201);
+    });
+
+    it("patches and returns with 204", () => {
+      let newProjectInfo = {
+        id: 1,
+        name: "New Name",
+        status: "Archive",
+      };
+      return supertest(app)
+        .patch("/api/projects")
+        .set("Authorization", `bearer ${createJwt(adminSub, adminPayload)}`)
+        .send(newProjectInfo)
+        .expect(204);
     });
   });
 });

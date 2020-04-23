@@ -89,21 +89,5 @@ describe("Users Endpoints", function () {
           .expect(201);
       });
     });
-    // context("happy path for admin sign up", () => {
-    //   it("responds with a 201 and serialized admin user", () => {
-    //     let goodAdminAttempt = {
-    //       first_name: "Anthony",
-    //       last_name: "Hill",
-    //       email: "admin@gmail.com",
-    //       password: "AAaa11!!",
-    //       password_confirm: "AAaa11!!",
-    //       org_name: "Stardew Crew",
-    //     };
-    //     supertest(app)
-    //       .post("/api/users/adminsignup")
-    //       .send(goodAdminAttempt)
-    //       .expect(201);
-    //   });
-    // });
   });
 });

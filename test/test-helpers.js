@@ -7,10 +7,12 @@ function makeOrganizationsArray() {
     {
       name: "Stardew",
       org_passcode: "foo",
+      id: 1,
     },
     {
       name: "Valley",
       org_passcode: "bar",
+      id: 2,
     },
   ];
 }
@@ -27,7 +29,7 @@ function makeUsersArray() {
       last_name: "Hill",
       email: "anthony@gmail.com",
       password: "Password123!",
-      role: "admin",
+      role: "Admin",
       org_id: 1,
     },
     {
@@ -45,10 +47,58 @@ function makeUsersArray() {
       last_name: "Hill",
       email: "april@gmail.com",
       password: "Password123!",
-      role: "admin",
+      role: "Admin",
       org_id: 2,
     },
   ];
+}
+
+function makeStagesArray() {
+  return [
+    {
+      id: 1,
+      org_id: 1,
+      name: "New",
+    },
+    {
+      id: 2,
+      org_id: 1,
+      name: "New",
+    },
+    {
+      id: 3,
+      org_id: 1,
+      name: "New",
+    },
+    {
+      id: 4,
+      org_id: 1,
+      name: "New",
+    },
+    {
+      id: 5,
+      org_id: 2,
+      name: "New",
+    },
+    {
+      id: 6,
+      org_id: 2,
+      name: "New",
+    },
+    {
+      id: 7,
+      org_id: 2,
+      name: "New",
+    },
+    {
+      id: 8,
+      org_id: 2,
+      name: "New",
+    },
+  ];
+}
+function seedStages(db, stages) {
+  return db.insert(stages).into("stages");
 }
 
 function seedUsers(db, users) {
@@ -69,15 +119,10 @@ function makeProjectsArray() {
     {
       name: "project 1",
       org_id: 1,
+      status: "Active",
     },
-    {
-      name: "project 2",
-      org_id: 2,
-    },
-    {
-      name: "project 3",
-      org_id: 1,
-    },
+    { name: "project 2", org_id: 2, status: "Active" },
+    { name: "project 3", org_id: 1, status: "Active" },
   ];
 }
 
@@ -88,7 +133,6 @@ function seedProjects(db, projects) {
 function makeStoriesArray() {
   return [
     {
-      id: 1,
       project_id: 1,
       user_id: 1,
       stage_id: 1,
@@ -97,7 +141,6 @@ function makeStoriesArray() {
         "This is a story. As a user I want to click on a story and see all the comments",
     },
     {
-      id: 2,
       project_id: 1,
       user_id: 2,
       stage_id: 1,
@@ -106,7 +149,6 @@ function makeStoriesArray() {
         "This is a story. As a user I want to click on a story and see all the comments",
     },
     {
-      id: 3,
       project_id: 2,
       user_id: 3,
       stage_id: 2,
@@ -115,7 +157,6 @@ function makeStoriesArray() {
         "THis is a story. As a user I want to click on a story and see all the comments",
     },
     {
-      id: 4,
       project_id: 2,
       user_id: 3,
       stage_id: 4,
@@ -182,4 +223,6 @@ module.exports = {
   makeStoriesArray,
   seedStories,
   createJwt,
+  seedStages,
+  makeStagesArray,
 };
