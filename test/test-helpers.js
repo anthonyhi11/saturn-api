@@ -171,6 +171,30 @@ function seedStories(db, stories) {
   return db.into("stories").insert(stories);
 }
 
+function makeCommentsArray() {
+  return [
+    {
+      story_id: 1,
+      user_id: 1,
+      comment: "Something fresh",
+    },
+    {
+      story_id: 2,
+      user_id: 2,
+      comment: "Something fresh",
+    },
+    {
+      story_id: 1,
+      user_id: 2,
+      comment: "Something fresh",
+    },
+  ];
+}
+
+function seedComments(db, comments) {
+  return db.into("comments").insert(comments);
+}
+
 function createJwt(subject, payload) {
   return jwt.sign(payload, config.JWT_SECRET, {
     subject,
@@ -224,5 +248,7 @@ module.exports = {
   seedStories,
   createJwt,
   seedStages,
+  makeCommentsArray,
+  seedComments,
   makeStagesArray,
 };
