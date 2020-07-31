@@ -3,8 +3,13 @@
 ### This is an API for Saturn. A project management tool for software development teams.
 
 This is the API for the Saturn-Client
+
 Live Client: https://saturn-blush.now.sh
+
 CLIENT REPO: https://github.com/anthonyhi11/saturn-client
+
+
+![](https://media.giphy.com/media/Ynf1JVlfTPQoYA6zMn/giphy.gif)
 
 ## GETTING STARTED
 
