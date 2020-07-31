@@ -215,7 +215,7 @@ function cleanTables(db) {
           comments
         `
       )
-      .then(() =>
+      .then(() => {
         Promise.all([
           trx.raw(
             `ALTER SEQUENCE organizations_id_seq minvalue 0 START WITH 1`
@@ -231,8 +231,8 @@ function cleanTables(db) {
           trx.raw(`SELECT setval('projects_id_seq', 0)`),
           trx.raw(`SELECT setval('stories_id_seq', 0)`),
           trx.raw(`SELECT setval('comments_id_seq', 0)`),
-        ])
-      )
+        ]);
+      })
   );
 }
 
